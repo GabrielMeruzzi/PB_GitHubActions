@@ -85,6 +85,11 @@
             <artifactId>javalin-testtools</artifactId>
             <version>6.7.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.14</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
