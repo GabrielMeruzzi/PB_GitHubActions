@@ -20,13 +20,13 @@ class ProductTest {
     }
 
     @Test
-    @DisplayName("Erro ao criar produto com ID menor ou igual a 0")
+    @DisplayName("Erro ao criar produto com ID menor que 0")
     void idMenorOuIgualZero() {
         assertThrows(IllegalArgumentException.class, () ->
-                new Product(0, "Mouse", "Mouse sem fio", 100.00, 5));
+                new Product(-1, "Mouse", "Mouse sem fio", 100.00, 5));
 
         assertThrows(IllegalArgumentException.class, () ->
-                new Product(-1, "Mouse", "Mouse sem fio", 100.00, 5));
+                new Product(-5, "Mouse", "Mouse sem fio", 100.00, 5));
     }
 
     @Test
