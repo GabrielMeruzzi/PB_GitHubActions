@@ -1,8 +1,7 @@
 package org.pb_tp1.view;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -12,6 +11,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ProductViewTest {
     private WebDriver driver;
 
@@ -23,6 +23,7 @@ class ProductViewTest {
     }
 
     @Test
+    @Order(1)
     void createProduct() {
         driver.findElement(By.xpath("/html/body/a")).click();
         driver.findElement(By.id("nome")).sendKeys("Produto de teste");

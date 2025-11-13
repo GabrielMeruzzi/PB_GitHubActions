@@ -83,21 +83,25 @@ public class ProductServiceTest {
     @Test
     @DisplayName("Erro ao deletar produto inexistente")
     void deleteNonExistentProduct() {
-        Product deleted = productService.deleteProduct(999);
-        assertNull(deleted, "Deletar um produto inexistente deve retornar null");
+        assertThrows(IllegalArgumentException.class, ()-> {
+        productService.deleteProduct(999);
+        });
     }
 
     @Test
     @DisplayName("Erro ao buscar produto com ID inválido")
     void invalidIdOnGetProduct() {
+        assertThrows(IllegalArgumentException.class, ()-> {
         assertNull(productService.getProductById(0));
         assertNull(productService.getProductById(-5));
+        });
     }
 
     @Test
     @DisplayName("Erro ao atualizar produto inexistente")
     void updateNonExistentProduct() {
-        Product updatedProduct = productService.updateProduct(42, "Teste", "Teste desc", 10.0, 1);
-        assertNull(updatedProduct, "Atualizar produto inexistente deve retornar false");
+        assertThrows(NullPointerException.class, ()-> {
+        productService.updateProduct(42, "Teste", "Teste desc", 10.0, 1);
+        });
     }
 }

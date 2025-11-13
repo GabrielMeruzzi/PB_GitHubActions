@@ -1,13 +1,13 @@
 package org.pb_tp1.view;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ProductViewPOMTest {
     private WebDriver driver;
     private ProductPage productPage;
@@ -21,6 +21,7 @@ class ProductViewPOMTest {
     }
 
     @Test
+    @Order(1)
     void createProduct() {
         productPage.clickAddNewProduct();
         productPage.fillForm("Produto de teste", "Descricao de testes", "22", "10");
@@ -31,6 +32,7 @@ class ProductViewPOMTest {
     }
 
     @Test
+    @Order(2)
     void editProduct() {
         productPage.clickEditFirstProduct();
         productPage.fillForm("Produto editado", "Descricao editada", "15", "5");
@@ -42,6 +44,7 @@ class ProductViewPOMTest {
     }
 
     @Test
+    @Order(3)
     void deleteProduct() {
         productPage.clickDeleteFirstProduct();
         productPage.open();
