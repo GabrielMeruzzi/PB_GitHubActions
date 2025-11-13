@@ -11,7 +11,7 @@ public class Product {
     private int estoque;
 
     public Product(int id, String nome, String descricao, double preco, int estoque) {
-        if (id <= 0) throw new IllegalArgumentException("ID deve ser maior que 0.");
+        if (id < 0) throw new IllegalArgumentException("ID deve ser maior que 0.");
         if (nome == null || nome.length() < 3)
             throw new IllegalArgumentException("Nome NULL ou menor que 3 caracteres.");
         if (descricao == null || descricao.length() < 5)
