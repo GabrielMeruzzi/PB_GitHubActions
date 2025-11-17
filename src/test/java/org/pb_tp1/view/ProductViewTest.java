@@ -1,7 +1,8 @@
 package org.pb_tp1.view;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -11,7 +12,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ProductViewTest {
     private WebDriver driver;
 
@@ -23,7 +23,6 @@ class ProductViewTest {
     }
 
     @Test
-    @Order(1)
     void createProduct() {
         driver.findElement(By.xpath("/html/body/a")).click();
         driver.findElement(By.id("nome")).sendKeys("Produto de teste");
@@ -87,6 +86,25 @@ class ProductViewTest {
                 .anyMatch(row -> row.getText().contains("Produto editado")
                         && row.getText().contains("Descricao editada"));
         assertFalse(found);
+        driver.quit();
+    }
+
+    @Test
+    void createProductWithInvalidEstoqueNumber() {
+        driver.findElement(By.xpath("/html/body/a")).click();
+        driver.findElement(By.id("nome")).sendKeys("Produto de teste");
+        driver.findElement(By.id("descricao")).sendKeys("Descricao de testes");
+        WebElement precoInput = driver.findElement(By.id("preco"));
+        precoInput.clear();
+        precoInput.sendKeys("22");
+        WebElement estoqueInput = driver.findElement(By.id("estoque"));
+        estoqueInput.clear();
+        estoqueInput.sendKeys("-10");
+        driver.findElement(By.xpath("/html/body/form/button")).click();
+
+        String errorMsg = driver.findElement(By.className("alert")).getText();
+        assertEquals("Erro ao criar produto, verifique os dados e tente novamente.", errorMsg);
+
         driver.quit();
     }
 }

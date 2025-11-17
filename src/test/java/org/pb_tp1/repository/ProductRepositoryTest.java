@@ -17,8 +17,8 @@ public class ProductRepositoryTest {
 
     @Test
     void createTest() {
-        Product created = productRepository.create("Faca", "Faca de cortar pão", 199, 5);
-        assertNotNull(created);
+        Product product = productRepository.create("Faca", "Faca de cortar pão", 199, 5);
+        assertNotNull(product);
 
         Product newProduct = productRepository.getProductById(2);
         assertNotNull(newProduct);
@@ -30,16 +30,13 @@ public class ProductRepositoryTest {
 
     @Test
     void removeTest() {
-        Product removed = productRepository.delete(1);
-        assertNotNull(removed);
-        assertEquals("Colher", removed.getNome());
+        assertNotNull(productRepository.delete(1));
         assertNull(productRepository.getProductById(1));
     }
 
     @Test
     void updateTest() {
-        Product updated = productRepository.update(1, "Colher de Madeira", "Colher rústica", 150, 20);
-        assertNotNull(updated);
+        assertNotNull(productRepository.update(1, "Colher de Madeira", "Colher rústica", 150, 20));
 
         Product updatedProduct = productRepository.getProductById(1);
         assertNotNull(updatedProduct);

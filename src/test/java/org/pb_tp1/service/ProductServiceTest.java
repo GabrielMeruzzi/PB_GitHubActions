@@ -41,67 +41,91 @@ public class ProductServiceTest {
         return Arbitraries.integers().greaterOrEqual(0).lessOrEqual(1000);
     }
 
+    @Provide
+    Arbitrary<String> specialChars() {
+        return Arbitraries.strings().withChars("!@#$%^&*()<>?/\\|{}[]~").ofMinLength(1).ofMaxLength(10);
+    }
+
     @Property
     void createRandomProductTest(@ForAll("nome") String nome,
                                  @ForAll("descricao") String descricao,
                                  @ForAll("preco") double preco,
                                  @ForAll("estoque") int estoque) {
-        Product product = productService.createProduct(nome, descricao, preco, estoque);
-        assertNotNull(product, "O produto criado não deve ser nulo");
-        assertFalse(productService.getAllProducts().isEmpty(), "A lista de produtos não deve estar vazia após criar");
+        assertNotNull(productService.createProduct(nome, descricao, preco, estoque));
+        assertFalse(productService.getAllProducts().isEmpty());
+    }
+
+    @Property
+    void fuzzInvalidStrings(@ForAll String randomText, @ForAll Double preco, @ForAll Integer estoque) {
+        Assume.that(randomText != null);
+        Assume.that(preco != null && preco > 0);
+        Assume.that(estoque != null && estoque >= 0);
+
+        if (randomText.isBlank() || randomText.length() < 3) {
+            assertThrows(Exception.class, () -> productService.createProduct(randomText, randomText, preco, estoque));
+        }
+    }
+
+    @Property
+    void fuzzSpecialCharacters(@ForAll("preco") double preco,
+                               @ForAll("estoque") int estoque,
+                               @ForAll("descricao") String desc,
+                               @ForAll("nome") String nome,
+                               @ForAll("specialChars") String special) {
+        if (special.length() < 3) {
+            assertThrows(Exception.class, () -> productService.createProduct(special, desc, preco, estoque));
+        }
+    }
+
+    @Property
+    void fuzzExtremeNumbers(@ForAll Integer estoque) {
+        Assume.that(estoque != null);
+        if (estoque < 0) {
+            assertThrows(Exception.class, () -> productService.createProduct("abc", "abcde", 10.0, estoque));
+        }
     }
 
     @Test
     @DisplayName("Deve criar e deletar produto corretamente")
     void createThenDeleteTest() {
-        Product created = productService.createProduct("Colher", "Colher de inox", 100, 10);
-        assertNotNull(created);
+        productService.createProduct("Colher", "Colher de inox", 100, 10);
         assertEquals(1, productService.getAllProducts().size());
-
-        Product found = productService.getProductById(created.getId());
-        assertNotNull(found);
-
-        Product deleted = productService.deleteProduct(created.getId());
-        assertNotNull(deleted, "O produto deletado deve ser retornado");
+        Product p = productService.getProductById(1);
+        assertNotNull(p);
+        assertNotNull(productService.deleteProduct(1));
         assertEquals(0, productService.getAllProducts().size());
     }
 
     @Test
     @DisplayName("Deve criar e atualizar produto corretamente")
     void createThenUpdateTest() {
-        Product created = productService.createProduct("Faca", "Faca de pão", 200, 5);
-        assertNotNull(created);
-
-        Product updatedProduct = productService.updateProduct(created.getId(), "Faca Nova", "Faca de carne", 250, 15);
-        assertNotNull(updatedProduct);
-        assertEquals("Faca Nova", updatedProduct.getNome());
-        assertEquals("Faca de carne", updatedProduct.getDescricao());
-        assertEquals(250, updatedProduct.getPreco());
-        assertEquals(15, updatedProduct.getEstoque());
+        productService.createProduct("Faca", "Faca de pão", 200, 5);
+        assertNotNull(productService.updateProduct(1, "Faca Nova", "Faca de carne", 250, 15));
+        Product updated = productService.getProductById(1);
+        assertEquals("Faca Nova", updated.getNome());
+        assertEquals("Faca de carne", updated.getDescricao());
+        assertEquals(250, updated.getPreco());
+        assertEquals(15, updated.getEstoque());
     }
 
     @Test
     @DisplayName("Erro ao deletar produto inexistente")
     void deleteNonExistentProduct() {
-        assertThrows(IllegalArgumentException.class, ()-> {
-        productService.deleteProduct(999);
-        });
+        assertThrows(IllegalArgumentException.class, () -> productService.deleteProduct(99));
     }
 
     @Test
     @DisplayName("Erro ao buscar produto com ID inválido")
     void invalidIdOnGetProduct() {
-        assertThrows(IllegalArgumentException.class, ()-> {
-        assertNull(productService.getProductById(0));
-        assertNull(productService.getProductById(-5));
-        });
+        assertThrows(IllegalArgumentException.class, () -> productService.getProductById(0));
+        assertThrows(IllegalArgumentException.class, () -> productService.getProductById(-5));
     }
 
     @Test
     @DisplayName("Erro ao atualizar produto inexistente")
     void updateNonExistentProduct() {
-        assertThrows(NullPointerException.class, ()-> {
-        productService.updateProduct(42, "Teste", "Teste desc", 10.0, 1);
-        });
+        assertThrows(NullPointerException.class, () ->
+                productService.updateProduct(42, "Teste", "Teste desc", 10.0, 1)
+        );
     }
 }

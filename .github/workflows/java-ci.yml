@@ -1,9 +1,10 @@
-name: Java CI
+name: Java CI/CD
 
 on:
   push:
     branches:
       - master
+      - develop
   pull_request:
     branches:
       - master
@@ -40,3 +41,35 @@ jobs:
         with:
           name: surefire-html-report
           path: target/site/
+
+  deploy_stage:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    environment:
+      name: stage
+      url: https://meuapp-stage.com
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy to STAGE
+        run: |
+          echo "Deploy no ambiente STAGE executado."
+
+  deploy_prod:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    environment:
+      name: prod
+      url: https://meuapp.com
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy to PROD
+        run: |
+          echo "Deploy no ambiente PROD executado."
