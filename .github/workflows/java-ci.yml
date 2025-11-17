@@ -48,7 +48,6 @@ jobs:
     if: github.ref == 'refs/heads/develop'
     environment:
       name: stage
-      url: https://meuapp-stage.com
 
     steps:
       - name: Checkout repository
@@ -64,8 +63,6 @@ jobs:
     if: github.ref == 'refs/heads/master'
     environment:
       name: prod
-      url: https://meuapp.com
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
