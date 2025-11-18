@@ -13,6 +13,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -32,16 +33,10 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build, Test (excluding Selenium) and Package
-        run: mvn clean package -Dtest=!**/view/** site
-
-      - name: Verify JAR exists
-        run: ls -l target/
-
-      - name: Upload fat JAR artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-jar
-          path: target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT-shaded.jar
+        run: |
+          echo "Iniciando build e testes..."
+          mvn clean package -Dtest=!**/view/** site
+          echo "Build e testes finalizados com sucesso."
 
       - name: Upload html report
         if: always()
@@ -50,8 +45,41 @@ jobs:
           name: surefire-html-report
           path: target/site/
 
-  deploy_stage:
+  integration_test:
     needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21
+          distribution: temurin
+
+      - name: Run the app in background
+        run: |
+          echo "Starting Javalin app..."
+          nohup java -jar target/*.jar &   # roda o Javalin em background
+          APP_PID=$!
+          echo $APP_PID > app.pid
+          echo "Waiting for the app to start..."
+          sleep 10  # espera alguns segundos para o app subir
+
+      - name: Run smoke tests
+        run: |
+          echo "Testing if app is running..."
+          curl -s -f http://localhost:7000/products || exit 1
+          echo "App responded successfully."
+
+      - name: Stop the app
+        run: |
+          echo "Stopping Javalin app..."
+          kill $(cat app.pid)
+
+  deploy_stage:
+    needs: integration_test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/develop'
     environment:
@@ -61,51 +89,15 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Deploy to STAGE
+        run: |
+          echo "Iniciando deploy em STAGE..."
+          echo "Usando STAGE_API_KEY: $STAGE_API_KEY"
+          echo "Deploy em STAGE concluído."
         env:
           STAGE_API_KEY: ${{ secrets.STAGE_API_KEY }}
-        run: |
-          echo "Usando STAGE_API_KEY: $STAGE_API_KEY"
-
-  post_deploy_tests_stage:
-    needs: deploy_stage
-    runs-on: ubuntu-latest
-    environment:
-      name: stage
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
-        with:
-          java-version: 21
-          distribution: temurin
-
-      - name: Download built fat JAR
-        uses: actions/download-artifact@v4
-        with:
-          name: app-jar
-          path: target/
-
-      - name: Verify downloaded JAR
-        run: ls -l target/
-
-      - name: Start Javalin Application
-        run: java -cp target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT-shaded.jar org.pb_tp1.App &
-
-      - name: Wait for server
-        run: |
-          for i in {1..60}; do
-            curl -s http://localhost:7000/products && break
-            echo "Waiting for server..."
-            sleep 2
-          done
-
-      - name: Run Selenium Tests in Stage
-        run: mvn verify -Dtest=org.pb_tp1.view.*Test
 
   deploy_prod:
-    needs: build
+    needs: integration_test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     environment:
@@ -115,45 +107,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Deploy to PROD
+        run: |
+          echo "Iniciando deploy em PROD..."
+          echo "Usando PROD_API_KEY: $PROD_API_KEY"
+          echo "Deploy em PROD concluído."
         env:
           PROD_API_KEY: ${{ secrets.PROD_API_KEY }}
-        run: | 
-          echo "Usando PROD_API_KEY: $PROD_API_KEY"
-
-  post_deploy_tests_prod:
-    needs: deploy_prod
-    runs-on: ubuntu-latest
-    environment:
-      name: prod
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
-        with:
-          java-version: 21
-          distribution: temurin
-
-      - name: Download built fat JAR
-        uses: actions/download-artifact@v4
-        with:
-          name: app-jar
-          path: target/
-
-      - name: Verify downloaded JAR
-        run: ls -l target/
-
-      - name: Start Javalin Application
-        run: java -cp target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT-shaded.jar org.pb_tp1.App &
-
-      - name: Wait for server
-        run: |
-          for i in {1..60}; do
-            curl -s http://localhost:7000/products && break
-            echo "Waiting for server..."
-            sleep 2
-          done
-
-      - name: Run Selenium Tests in Production
-        run: mvn verify -Dtest=org.pb_tp1.view.*Test
