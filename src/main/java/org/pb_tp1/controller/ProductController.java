@@ -16,6 +16,10 @@ public class ProductController {
     }
 
     public ProductController(Javalin app, ProductService service) {
+        app.get("/health", ctx -> {
+            ctx.result("OK");
+        });
+
         app.get("/products", ctx -> {
             try {
                 String message = ctx.queryParam("message");

@@ -61,22 +61,23 @@ jobs:
       - name: Run the app in background
         run: |
           echo "Starting Javalin app..."
-          nohup java -jar target/*.jar &   # roda o Javalin em background
+          nohup java -jar target/pb_tp1-1.0-SNAPSHOT.jar &   # use o nome correto do JAR
           APP_PID=$!
           echo $APP_PID > app.pid
           echo "Waiting for the app to start..."
-          sleep 10  # espera alguns segundos para o app subir
+          sleep 20  # aumenta o tempo para garantir que o app suba
 
-      - name: Run smoke tests
+      - name: Run health check
         run: |
           echo "Testing if app is running..."
-          curl -s -f http://localhost:7000/products || exit 1
+          curl -s -f http://localhost:7000/health || exit 1
           echo "App responded successfully."
 
       - name: Stop the app
         run: |
           echo "Stopping Javalin app..."
           kill $(cat app.pid)
+  
 
   deploy_stage:
     needs: integration_test
