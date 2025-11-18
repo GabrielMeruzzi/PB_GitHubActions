@@ -30,7 +30,7 @@ class ProductViewPOMTest {
         productPage.fillForm("Produto de teste", "Descricao de testes", "22", "10");
         productPage.submitForm();
 
-        Thread.sleep(2000);
+        Thread.sleep(3000);
         assertTrue(productPage.isProductInTable("Produto de teste", "Descricao de testes"));
         driver.quit();
     }
@@ -43,7 +43,7 @@ class ProductViewPOMTest {
         productPage.submitForm();
 
         productPage.open();
-        Thread.sleep(2000);
+        Thread.sleep(3000);
         assertTrue(productPage.isProductInTable("Produto editado", "Descricao editada"));
         driver.quit();
     }
@@ -54,7 +54,7 @@ class ProductViewPOMTest {
         productPage.clickDeleteFirstProduct();
         productPage.open();
 
-        Thread.sleep(2000);
+        Thread.sleep(3000);
         assertFalse(productPage.isProductInTable("Produto editado", "Descricao editada"));
         driver.quit();
     }

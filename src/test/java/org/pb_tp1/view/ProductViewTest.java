@@ -39,7 +39,7 @@ class ProductViewTest {
         estoqueInput.sendKeys("10");
         driver.findElement(By.xpath("/html/body/form/button")).click();
 
-        Thread.sleep(2000);
+        Thread.sleep(3000);
         List<WebElement> rows = driver.findElements(By.xpath("//tbody/tr"));
         boolean found = rows.stream()
                 .anyMatch(row -> row.getText().contains("Produto de teste")
@@ -73,7 +73,7 @@ class ProductViewTest {
 
         driver.get("http://localhost:7000/products");
 
-        Thread.sleep(2000);
+        Thread.sleep(3000);
         List<WebElement> rows = driver.findElements(By.xpath("//tbody/tr"));
         boolean found = rows.stream()
                 .anyMatch(row -> row.getText().contains("Produto editado")
@@ -89,7 +89,7 @@ class ProductViewTest {
 
         driver.get("http://localhost:7000/products");
 
-        Thread.sleep(2000);
+        Thread.sleep(3000);
         List<WebElement> rows = driver.findElements(By.xpath("//tbody/tr"));
         boolean found = rows.stream()
                 .anyMatch(row -> row.getText().contains("Produto editado")
@@ -112,7 +112,7 @@ class ProductViewTest {
         estoqueInput.sendKeys("-10");
         driver.findElement(By.xpath("/html/body/form/button")).click();
 
-        Thread.sleep(2000);
+        Thread.sleep(3000);
         String errorMsg = driver.findElement(By.className("alert")).getText();
         assertEquals("Erro ao criar produto, verifique os dados e tente novamente.", errorMsg);
 

@@ -41,7 +41,7 @@ class ProductViewParametrizedTest {
         driver.findElement(By.id("preco")).sendKeys(preco);
         driver.findElement(By.id("estoque")).sendKeys(estoque);
 
-        Thread.sleep(1000);
+        Thread.sleep(3000);
 
         driver.findElement(By.xpath("/html/body/form/button")).click();
 
@@ -59,7 +59,7 @@ class ProductViewParametrizedTest {
             "Produto Editado 2, Nova Desc 2, 60, 30"
     })
     @Order(2)
-    void editProduct_parametrized(String nome, String descricao, String preco, String estoque) {
+    void editProduct_parametrized(String nome, String descricao, String preco, String estoque) throws InterruptedException {
         driver.findElement(By.xpath("/html/body/table/tbody/tr/td[6]/a")).click();
 
         WebElement nomeInput = driver.findElement(By.id("nome"));
@@ -82,6 +82,7 @@ class ProductViewParametrizedTest {
 
         driver.get("http://localhost:7000/products");
 
+        Thread.sleep(3000);
         List<WebElement> rows = driver.findElements(By.xpath("//tbody/tr"));
         boolean found = rows.stream()
                 .anyMatch(row -> row.getText().contains(nome)
@@ -96,11 +97,12 @@ class ProductViewParametrizedTest {
             "Produto Editado 2, Nova Desc 2"
     })
     @Order(3)
-    void deleteProduct_parametrized(String nome, String descricao) {
+    void deleteProduct_parametrized(String nome, String descricao) throws InterruptedException {
         driver.findElement(By.xpath("/html/body/table/tbody/tr/td[6]/form/button")).click();
 
         driver.get("http://localhost:7000/products");
 
+        Thread.sleep(3000);
         List<WebElement> rows = driver.findElements(By.xpath("//tbody/tr"));
         boolean found = rows.stream()
                 .anyMatch(row -> row.getText().contains(nome)
