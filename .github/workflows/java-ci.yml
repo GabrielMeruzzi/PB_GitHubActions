@@ -108,4 +108,4 @@ jobs:
           distribution: temurin
 
       - name: Run Selenium Tests in Production
-        run: mvn verify -Dtest=org.pb_tp1.view.**/*
+        run: mvn verify -Dtest=org.pb_tp1.view.*Test
