@@ -61,7 +61,7 @@ jobs:
       - name: Run the app in background
         run: |
           echo "Starting Javalin app..."
-          nohup java -jar target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT.jar &
+          nohup java -jar target/*.jar &
           APP_PID=$!
           echo $APP_PID > app.pid
           echo "Waiting for the app to start..."
