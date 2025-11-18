@@ -97,6 +97,7 @@ jobs:
 
   post_deploy_test:
     needs: [ deploy_stage, deploy_prod ]
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
