@@ -27,7 +27,7 @@ class ProductViewTest {
 
     @Test
     @Order(1)
-    void createProduct() {
+    void createProduct() throws InterruptedException {
         driver.findElement(By.xpath("/html/body/a")).click();
         driver.findElement(By.id("nome")).sendKeys("Produto de teste");
         driver.findElement(By.id("descricao")).sendKeys("Descricao de testes");
@@ -39,6 +39,7 @@ class ProductViewTest {
         estoqueInput.sendKeys("10");
         driver.findElement(By.xpath("/html/body/form/button")).click();
 
+        Thread.sleep(2000);
         List<WebElement> rows = driver.findElements(By.xpath("//tbody/tr"));
         boolean found = rows.stream()
                 .anyMatch(row -> row.getText().contains("Produto de teste")
@@ -49,7 +50,7 @@ class ProductViewTest {
 
     @Test
     @Order(2)
-    void editProduct() {
+    void editProduct() throws InterruptedException {
         driver.findElement(By.xpath("/html/body/table/tbody/tr/td[6]/a")).click();
 
         WebElement nomeInput = driver.findElement(By.id("nome"));
@@ -72,6 +73,7 @@ class ProductViewTest {
 
         driver.get("http://localhost:7000/products");
 
+        Thread.sleep(2000);
         List<WebElement> rows = driver.findElements(By.xpath("//tbody/tr"));
         boolean found = rows.stream()
                 .anyMatch(row -> row.getText().contains("Produto editado")
@@ -82,11 +84,12 @@ class ProductViewTest {
 
     @Order(3)
     @Test
-    void deleteProduct() {
+    void deleteProduct() throws InterruptedException {
         driver.findElement(By.xpath("/html/body/table/tbody/tr/td[6]/form/button")).click();
 
         driver.get("http://localhost:7000/products");
 
+        Thread.sleep(2000);
         List<WebElement> rows = driver.findElements(By.xpath("//tbody/tr"));
         boolean found = rows.stream()
                 .anyMatch(row -> row.getText().contains("Produto editado")
@@ -97,7 +100,7 @@ class ProductViewTest {
 
     @Order(4)
     @Test
-    void createProductWithInvalidEstoqueNumber() {
+    void createProductWithInvalidEstoqueNumber() throws InterruptedException {
         driver.findElement(By.xpath("/html/body/a")).click();
         driver.findElement(By.id("nome")).sendKeys("Produto de teste");
         driver.findElement(By.id("descricao")).sendKeys("Descricao de testes");
@@ -109,6 +112,7 @@ class ProductViewTest {
         estoqueInput.sendKeys("-10");
         driver.findElement(By.xpath("/html/body/form/button")).click();
 
+        Thread.sleep(2000);
         String errorMsg = driver.findElement(By.className("alert")).getText();
         assertEquals("Erro ao criar produto, verifique os dados e tente novamente.", errorMsg);
 

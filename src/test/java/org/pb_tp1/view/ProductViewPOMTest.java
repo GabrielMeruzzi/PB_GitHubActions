@@ -25,33 +25,36 @@ class ProductViewPOMTest {
 
     @Test
     @Order(1)
-    void createProduct() {
+    void createProduct() throws InterruptedException {
         productPage.clickAddNewProduct();
         productPage.fillForm("Produto de teste", "Descricao de testes", "22", "10");
         productPage.submitForm();
 
+        Thread.sleep(2000);
         assertTrue(productPage.isProductInTable("Produto de teste", "Descricao de testes"));
         driver.quit();
     }
 
     @Test
     @Order(2)
-    void editProduct() {
+    void editProduct() throws InterruptedException {
         productPage.clickEditFirstProduct();
         productPage.fillForm("Produto editado", "Descricao editada", "15", "5");
         productPage.submitForm();
 
         productPage.open();
+        Thread.sleep(2000);
         assertTrue(productPage.isProductInTable("Produto editado", "Descricao editada"));
         driver.quit();
     }
 
     @Test
     @Order(3)
-    void deleteProduct() {
+    void deleteProduct() throws InterruptedException {
         productPage.clickDeleteFirstProduct();
         productPage.open();
 
+        Thread.sleep(2000);
         assertFalse(productPage.isProductInTable("Produto editado", "Descricao editada"));
         driver.quit();
     }
