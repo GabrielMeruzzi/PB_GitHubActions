@@ -61,11 +61,11 @@ jobs:
       - name: Run the app in background
         run: |
           echo "Starting Javalin app..."
-          nohup java -jar target/pb_tp1-1.0-SNAPSHOT.jar &   # use o nome correto do JAR
+          nohup java -jar target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT.jar &
           APP_PID=$!
           echo $APP_PID > app.pid
           echo "Waiting for the app to start..."
-          sleep 20  # aumenta o tempo para garantir que o app suba
+          sleep 20
 
       - name: Run health check
         run: |
