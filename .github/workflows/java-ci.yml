@@ -32,8 +32,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Build, Test, and Generate Reports
-        run: mvn clean test -Dtest=!**/view/** site
+      - name: Build, Test (excluding Selenium) and Package
+        run: mvn clean package -Dtest=!**/view/** site
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT.jar
 
       - name: Upload html report
         if: always()
@@ -51,6 +57,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Deploy to STAGE
         env:
           STAGE_API_KEY: ${{ secrets.STAGE_API_KEY }}
@@ -72,8 +79,11 @@ jobs:
           java-version: 21
           distribution: temurin
 
-      - name: Build JAR
-        run: mvn clean package
+      - name: Download built JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: target/
 
       - name: Start Javalin Application
         run: java -cp target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT.jar org.pb_tp1.App &
@@ -98,6 +108,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Deploy to PROD
         env:
           PROD_API_KEY: ${{ secrets.PROD_API_KEY }}
@@ -119,8 +130,11 @@ jobs:
           java-version: 21
           distribution: temurin
 
-      - name: Build JAR
-        run: mvn clean package
+      - name: Download built JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: target/
 
       - name: Start Javalin Application
         run: java -cp target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT.jar org.pb_tp1.App &
