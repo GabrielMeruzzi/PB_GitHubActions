@@ -63,7 +63,8 @@ jobs:
       - name: Deploy to STAGE
         env:
           STAGE_API_KEY: ${{ secrets.STAGE_API_KEY }}
-        run: echo "Usando STAGE_API_KEY: $STAGE_API_KEY"
+        run: |
+          echo "Usando STAGE_API_KEY: $STAGE_API_KEY"
 
   post_deploy_tests_stage:
     needs: deploy_stage
