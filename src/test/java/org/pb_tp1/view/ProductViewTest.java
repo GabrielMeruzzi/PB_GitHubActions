@@ -1,28 +1,32 @@
 package org.pb_tp1.view;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ProductViewTest {
     private WebDriver driver;
 
     @BeforeEach
     void setUp() {
         WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        driver = new ChromeDriver(options);
         driver.get("http://localhost:7000/products");
     }
 
     @Test
+    @Order(1)
     void createProduct() {
         driver.findElement(By.xpath("/html/body/a")).click();
         driver.findElement(By.id("nome")).sendKeys("Produto de teste");
@@ -44,6 +48,7 @@ class ProductViewTest {
     }
 
     @Test
+    @Order(2)
     void editProduct() {
         driver.findElement(By.xpath("/html/body/table/tbody/tr/td[6]/a")).click();
 
@@ -75,6 +80,7 @@ class ProductViewTest {
         driver.quit();
     }
 
+    @Order(3)
     @Test
     void deleteProduct() {
         driver.findElement(By.xpath("/html/body/table/tbody/tr/td[6]/form/button")).click();
@@ -89,6 +95,7 @@ class ProductViewTest {
         driver.quit();
     }
 
+    @Order(4)
     @Test
     void createProductWithInvalidEstoqueNumber() {
         driver.findElement(By.xpath("/html/body/a")).click();

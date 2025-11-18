@@ -48,14 +48,33 @@ jobs:
     if: github.ref == 'refs/heads/develop'
     environment:
       name: stage
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Deploy to STAGE
+        env:
+          STAGE_API_KEY: ${{ secrets.STAGE_API_KEY }}
+        run: |
+          echo "Usando STAGE_API_KEY: $STAGE_API_KEY"
+
+  post_deploy_tests_stage:
+    needs: deploy_stage
+    runs-on: ubuntu-latest
+    environment:
+      name: stage
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Deploy to STAGE
-        run: |
-          echo "Deploy no ambiente STAGE executado."
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21
+          distribution: temurin
+
+      - name: Run Selenium Tests in Stage
+        run: mvn verify -Dtest=org.pb_tp1.view.**/*
 
   deploy_prod:
     needs: build
@@ -66,7 +85,27 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
       - name: Deploy to PROD
+        env:
+          PROD_API_KEY: ${{ secrets.PROD_API_KEY }}
         run: |
-          echo "Deploy no ambiente PROD executado."
+          echo "Usando PROD_API_KEY: $PROD_API_KEY"
+
+  post_deploy_tests_prod:
+    needs: deploy_prod
+    runs-on: ubuntu-latest
+    environment:
+      name: prod
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21
+          distribution: temurin
+
+      - name: Run Selenium Tests in Production
+        run: mvn verify -Dtest=org.pb_tp1.view.**/*
