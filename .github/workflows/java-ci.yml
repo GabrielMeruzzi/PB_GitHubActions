@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build_and_test:
     runs-on: ubuntu-latest
 
     steps:
@@ -37,31 +37,13 @@ jobs:
           echo "Iniciando build e testes..."
           mvn clean package -Dtest=!**/view/** site
           echo "Build e testes finalizados com sucesso."
+          echo "Arquivos gerados no target:"
+          ls -l target/
 
-      - name: Upload html report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: surefire-html-report
-          path: target/site/
-
-  integration_test:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
-        with:
-          java-version: 21
-          distribution: temurin
-
-      - name: Run the app in background
+      - name: Run Javalin app in background
         run: |
           echo "Starting Javalin app..."
-          nohup java -jar target/*.jar &
+          nohup java -jar target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT.jar &
           APP_PID=$!
           echo $APP_PID > app.pid
           echo "Waiting for the app to start..."
@@ -74,13 +56,20 @@ jobs:
           echo "App responded successfully."
 
       - name: Stop the app
+        if: always()
         run: |
           echo "Stopping Javalin app..."
           kill $(cat app.pid)
-  
+
+      - name: Upload html report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-html-report
+          path: target/site/
 
   deploy_stage:
-    needs: integration_test
+    needs: build_and_test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/develop'
     environment:
@@ -98,7 +87,7 @@ jobs:
           STAGE_API_KEY: ${{ secrets.STAGE_API_KEY }}
 
   deploy_prod:
-    needs: integration_test
+    needs: build_and_test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     environment:
