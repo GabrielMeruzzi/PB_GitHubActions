@@ -35,11 +35,11 @@ jobs:
       - name: Build, Test (excluding Selenium) and Package
         run: mvn clean package -Dtest=!**/view/** site
 
-      - name: Upload JAR artifact
+      - name: Upload fat JAR artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-jar
-          path: target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT.jar
+          path: target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT-shaded.jar
 
       - name: Upload html report
         if: always()
@@ -79,14 +79,14 @@ jobs:
           java-version: 21
           distribution: temurin
 
-      - name: Download built JAR
+      - name: Download built fat JAR
         uses: actions/download-artifact@v4
         with:
           name: app-jar
           path: target/
 
       - name: Start Javalin Application
-        run: java -cp target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT.jar org.pb_tp1.App &
+        run: java -jar target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT-shaded.jar &
 
       - name: Wait for server
         run: |
@@ -130,14 +130,14 @@ jobs:
           java-version: 21
           distribution: temurin
 
-      - name: Download built JAR
+      - name: Download built fat JAR
         uses: actions/download-artifact@v4
         with:
           name: app-jar
           path: target/
 
       - name: Start Javalin Application
-        run: java -cp target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT.jar org.pb_tp1.App &
+        run: java -jar target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT-shaded.jar &
 
       - name: Wait for server
         run: |
