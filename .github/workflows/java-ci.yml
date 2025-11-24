@@ -69,13 +69,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Deploy to STAGE
+      # ====== NOVO ======
+      - name: Configurar credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      # ==================
+
+      - name: Deploy to STAGE (S3)
         run: |
           echo "Iniciando deploy em STAGE..."
-          echo "Usando STAGE_API_KEY: $STAGE_API_KEY"
+          aws s3 cp target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT.jar s3://$STAGE_BUCKET/app.jar --acl private
           echo "Deploy em STAGE concluído."
         env:
-          STAGE_API_KEY: ${{ secrets.STAGE_API_KEY }}
+          STAGE_BUCKET: ${{ secrets.STAGE_BUCKET }}
 
   deploy_prod:
     needs: build_and_test
@@ -87,13 +96,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Deploy to PROD
+      - name: Configurar credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to PROD (S3)
         run: |
           echo "Iniciando deploy em PROD..."
-          echo "Usando PROD_API_KEY: $PROD_API_KEY"
+          aws s3 cp target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT.jar s3://$PROD_BUCKET/app.jar --acl private
           echo "Deploy em PROD concluído."
         env:
-          PROD_API_KEY: ${{ secrets.PROD_API_KEY }}
+          PROD_BUCKET: ${{ secrets.PROD_BUCKET }}
 
   post_deploy_test:
     needs: [ deploy_stage, deploy_prod ]
@@ -115,22 +131,13 @@ jobs:
           mvn clean package -Dtest=!**/view/** site
           ls -l target/
 
-      - name: Determine environment
+      - name: Iniciar Javalin
         run: |
-          if [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
-            echo "ENVIRONMENT=stage" >> $GITHUB_ENV
-          else
-            echo "ENVIRONMENT=prod" >> $GITHUB_ENV
-          fi
-
-      - name: Start Javalin in background
-        run: |
-          echo "Iniciando Javalin para testes Selenium..."
+          echo "Iniciando Javalin..."
           nohup java -jar target/PB-ENG-DISC-SW-INFNET-1.0-SNAPSHOT.jar &
           sleep 10
 
-      - name: Run Selenium tests
+      - name: Testes com Selenium
         run: |
-          echo "Rodando testes Selenium no $ENVIRONMENT..."
+          echo "Rodando testes Selenium..."
           mvn test -Dtest=org.pb_tp1.view.**/*Test.java
-
